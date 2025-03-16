@@ -1,6 +1,6 @@
 import logging
-
-DOMAIN = "carcharger"
+from homeassistant.helpers.storage import Store
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -8,6 +8,7 @@ async def async_setup(hass, config):
     """Set up the car charger integration."""
     _LOGGER.info("Setting up CarCharger integration")
     hass.data[DOMAIN] = {}
+    hass.data[DOMAIN]['store'] = Store(hass, 1, f"{DOMAIN}_token")
     return True
 
 async def async_setup_entry(hass, config_entry):
