@@ -1,0 +1,10 @@
+{
+    "domain": "carcharger",
+    "name": "Car Charger",
+    "version": "1.0",
+    "documentation": "https://www.google.com",
+    "requirements": ["aiohttp"],
+    "dependencies": [],
+    "codeowners": ["@your_github_username"],
+    "config_flow": false
+  }
