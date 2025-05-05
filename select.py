@@ -76,13 +76,24 @@ class CarChargerSelect(SelectEntity):
 
     async def _load_tokens(self):
         """Load the access token from storage."""
+
         data = await self._store.async_load()
-        if data:
+        if not data:
+            _LOGGER.warning("No token data found in storage")
+            await self._authenticate()
+
+        if not isinstance(data, dict) or 'access_token' not in data:
+            _LOGGER.error("Invalid token format in storage: %s", type(data))
+            await self._authenticate()
+
+        if not data.get('access_token'):
+            _LOGGER.warning("Access token is empty or None")
+            await self._authenticate()
+
+        else:
             self._access_token = data.get("access_token")
             self._refresh_token = data.get("refresh_token")
-            _LOGGER.info("Loaded access token from storage")
-        else:
-            await self._authenticate()
+            _LOGGER.info("Loaded access token from storage :%s", self._access_token)
 
     async def _authenticate(self):
         """Authenticate with the API."""
@@ -157,10 +168,10 @@ class CarChargerSelect(SelectEntity):
         if option not in self._attr_options:
             _LOGGER.error("Invalid charge mode: %s", option)
             return
+        await self._load_tokens();
         url = f"https://{self._host}/v3/chargingstations/{self._charger_id}/connectors/{self._charger_position}/mode"
         headers = {"Authorization": f"Bearer {self._access_token}"}
         payload = {"mode": option}
-
         try:
             async with aiohttp.ClientSession() as session:
                 async with async_timeout.timeout(10):
